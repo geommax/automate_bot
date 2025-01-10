@@ -11,7 +11,7 @@ BOBO_DRIVER_PATH="$GIT_REPO_PATH/drivers/stm32f407_driver"
 
 check_user() {
     local username=$(whoami)
-    if [ "$username" == "mr_robot" ]; then
+    if [ "$username" == "mr_robot" && "$EUID" -e 1000 ]; then
         return 0  
     else
         return 1  
@@ -114,9 +114,13 @@ main() {
         acquire_data_from_usb_stick
         setup_rom2109_or_bobo
         build_install
-        clean_source_code
+        #clean_source_code # env setup လုပ်ပြီးမှပြန်လာရန်ပြန်စစ်ရန်။
     else
-        echo "Error: Username does not match. Bye !"
+        echo ""
+        echo "-------------------------------------------------"
+        echo "      Don't use sudo to run this script !      "
+        echo "-------------------------------------------------"
+        echo ""
         exit 1
     fi
 }

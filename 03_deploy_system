@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# Maintainer : ROM Dynamics Co., Ltd.
+
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run this deployment with sudo."
+  exit 1
+fi
+
+GIT_REPO_PATH="$HOME/Desktop/Git/rom_dynamics_robots"
+DEVEL_WS_SRC="$HOME/devel_ws/src"
+MAINTAIN_WS_SRC="$HOME/maintain_ws/src"
+ROM2109_DRIVER_PATH="$GIT_REPO_PATH/drivers/stm32f103_driver"
+BOBO_DRIVER_PATH="$GIT_REPO_PATH/drivers/stm32f407_driver"
+
+configure_rom2109(){
+    #udev rule for rom2109
+    echo "-----------------------------------"
+    echo "          ROM DYNAMICS LTD         "
+    echo "-----------------------------------"
+    echo "      This script copies a udev rule to /etc/udev/rules.d/ "
+    echo "      You can now use $HOME/robotController or /dev/ttyUSB0instead of /dev/ttyUSB* and "
+    echo "      You can now use /dev/rplidar instead of /dev/ttyUSB* and "
+    echo "" 
+    cp $GIT_REPO_PATH/.scripts/rom2109/*.rules /etc/udev/rules.d/
+    usermod -aG dialout $USER
+    echo ""
+    echo "Restarting udev"
+    echo ""
+    service udev reload
+    service udev restart
+    udevadm control --reload
+    #sudo udevadm trigger --action=change
+    
+    #tmux
+
+    #network DOMAIN ID = 0 
+    #autostart
+    #web_deployment
+}
+
+configure_bobo(){
+    #udev rule for bobo
+    echo "-----------------------------------"
+    echo "          ROM DYNAMICS LTD         "
+    echo "-----------------------------------"
+    echo "      This script copies a udev rule to /etc/udev/rules.d/ "
+    echo "      You can now use $HOME/robotController or /dev/ttyUSB0instead of /dev/ttyUSB* and "
+    echo "      You can now use /dev/rplidar instead of /dev/ttyUSB* and "
+    echo "" 
+    cp $GIT_REPO_PATH/.scripts/bobo_rules/*.rules /etc/udev/rules.d/ # bobo rules dir ထဲမှာ အချက်အလက်လိုအပ်နေသေး။
+    usermod -aG dialout $USER
+    echo ""
+    echo "Restarting udev"
+    echo ""
+    service udev reload
+    service udev restart
+    udevadm control --reload
+    #sudo udevadm trigger --action=change
+    
+    #tmux
+
+    #network DOMAIN ID = 0 
+    #autostart
+    #web_deployment
+
+}
+
+configure_rom2109_or_bobo(){
+    echo "Configuring System Environment... Please wait!"
+    while true; do
+        read -p "Choose robot models (rom2109 or bobo): " model
+        if [ "$model" == "rom2109" ]; then
+            configure_rom2109
+            break
+        elif [ "$model" == "bobo" ]; then
+            configure_bobo
+            break
+        else
+            echo "Invalid input. Please enter 'rom2109' or 'bobo'."
+        fi
+    done
+}
+
+main() {
+    configure_rom2109_or_bobo
+}
+
+main
